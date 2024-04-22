@@ -85,7 +85,19 @@ class Predictor(BasePredictor):
         red_part: Path = Input(description="Red part"),
         black_part: Path = Input(description="Black part"),
         color_mask: Path = Input(description="Color Mask"),
+        seed: int = Input(543543),
+        steps: int = Input(30),
+        cfg: float = Input(7.0),
+        sampler_name: str = Input(choices=["euler", "euler_ancestral", "heun", "heunpp2","dpm_2", "dpm_2_ancestral",
+                  "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
+                  "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "dpmpp_3m_sde", "dpmpp_3m_sde_gpu", "ddpm", "lcm"], default="dpmpp_2m"),
+        scheduler: str = Input(choices=["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform"], default="karras"),
+        width: int = Input(768),
+        height: int = Input(512),
+        image_denoise: float = Input(1),
         latent_upscale: bool = Input(False, description="Latent Upscale"),
+        latent_upscale_size: float = Input(1.5),
+        latent_upscale_denoise: float = Input(0.55),
     ) -> List[Path]:
         import nodes, IPAdapterPlus
         from totoro import model_management
@@ -123,17 +135,17 @@ class Predictor(BasePredictor):
             negative = conditioning_combine_multiple(conditioning_1=negative_1, conditioning_2=negative_2, conditioning_3=n_cond_3)
             ipadapter_params = IPAdapterPlus.IPAdapterCombineParams().combine(params_1=params_1, params_2=params_2, params_3=params_3)
             ip_model_patcher = IPAdapterPlus.IPAdapterAdvanced().apply_ipadapter(self.IPAdapterPlus_model[0], self.IPAdapterPlus_model[1], start_at=0.0, end_at=1.0, weight=1.0, weight_style=1.0, weight_composition=1.0, expand_style=False, weight_type="linear", combine_embeds="concat", embeds_scaling='V only', ipadapter_params=ipadapter_params[0])
-            latent = {"samples":torch.zeros([1, 4, 512 // 8, 768 // 8])}
+            latent = {"samples":torch.zeros([1, 4, height // 8, width // 8])}
             sample = nodes.common_ksampler(model=ip_model_patcher[0], 
-                        seed=543543, 
-                        steps=30, 
-                        cfg=7.0, 
-                        sampler_name="dpmpp_2m", 
-                        scheduler="karras", 
+                        seed=seed, 
+                        steps=steps, 
+                        cfg=cfg, 
+                        sampler_name=sampler_name, 
+                        scheduler=scheduler, 
                         positive=positive[0], 
                         negative=negative[0],
                         latent=latent, 
-                        denoise=1)
+                        denoise=image_denoise)
         if latent_upscale:
             with torch.inference_mode():
                 sample = sample[0]["samples"].to(torch.float16)
@@ -146,17 +158,17 @@ class Predictor(BasePredictor):
             print(torch.cuda.memory_cached(device=None))
             final_image = Image.fromarray(np.array(decoded*255, dtype=np.uint8)[0])
             final_image.save("/content/final_image.png")
-            latent_up = upscale(sample, 1.5, self.model_up, self.device, self.vae_device)
+            latent_up = upscale(sample, latent_upscale_size, self.model_up, self.device, self.vae_device)
             sample_up = nodes.common_ksampler(model=ip_model_patcher[0], 
-                                        seed=543543, 
-                                        steps=30, 
-                                        cfg=7.0, 
-                                        sampler_name="dpmpp_2m", 
-                                        scheduler="karras", 
+                                        seed=seed,
+                                        steps=steps,
+                                        cfg=cfg, 
+                                        sampler_name=sampler_name, 
+                                        scheduler=scheduler, 
                                         positive=positive[0], 
                                         negative=negative[0],
                                         latent=latent_up[0], 
-                                        denoise=0.55)
+                                        denoise=latent_upscale_denoise)
 
             with torch.inference_mode():
                 sample_up = sample_up[0]["samples"].to(torch.float16)
