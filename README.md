@@ -5,11 +5,6 @@
 ### 🕸 Replicate
 https://replicate.com/camenduru/comfyui-ipadapter-latentupscale
 
-### 📋 Tutorial
-ComfyUI = TotoroUI (because ComfyUI is banned on Colab 😋) <br />
-
-![TotoroUI](https://github.com/camenduru/TotoroUI-jupyter/assets/54370274/ded371dd-6500-4d5f-a700-d60a243d74b5)
-
 ### 🧬 Code
 https://github.com/tencent-ailab/IP-Adapter <br />
 https://github.com/comfyanonymous/ComfyUI <br />
@@ -24,7 +19,7 @@ https://arxiv.org/abs/2308.06721 <br />
 https://ip-adapter.github.io/ <br />
 
 ### 🖼 Output
-![Screenshot 2024-04-22 174401](https://github.com/camenduru/TotoroUI-jupyter/assets/54370274/3206d413-b90e-4c1a-bcf4-36154b611f39)
+![Screenshot 2024-04-22 211722](https://github.com/camenduru/comfyui-ipadapter-latentupscale-replicate/assets/54370274/2230eb2d-f339-46d1-8b5c-1f07d8c2cff0)
 
 ### 🏢 Sponsor
 https://replicate.com
