@@ -85,7 +85,7 @@ class Predictor(BasePredictor):
         red_part: Path = Input(description="Red part"),
         black_part: Path = Input(description="Black part"),
         color_mask: Path = Input(description="Color Mask"),
-        upscale: bool = False,
+        latent_upscale: bool = Input(False, description="Latent Upscale"),
     ) -> List[Path]:
         import nodes, IPAdapterPlus
         from totoro import model_management
@@ -134,7 +134,7 @@ class Predictor(BasePredictor):
                         negative=negative[0],
                         latent=latent, 
                         denoise=1)
-        if upscale:
+        if latent_upscale:
             with torch.inference_mode():
                 sample = sample[0]["samples"].to(torch.float16)
                 self.vae.first_stage_model.cuda()
