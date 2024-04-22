@@ -1,0 +1,16 @@
+build:
+  gpu: true
+  cuda: "12.1"
+  python_version: "3.10"
+  run:
+    - apt update -y && apt install -y software-properties-common python3-launchpadlib && apt update -y && add-apt-repository -y ppa:git-core/ppa && apt update -y
+    - apt install -y gcc g++ aria2 git git-lfs wget libgl1 libglib2.0-0 ffmpeg cmake libgtk2.0-0 libopenmpi-dev
+    - pip install -q torch==2.2.1+cu121 torchvision==0.17.1+cu121 torchaudio==2.2.1+cu121 torchtext==0.17.1 torchdata==0.7.1 --extra-index-url https://download.pytorch.org/whl/cu121 -U
+    - pip install -q scipy torchsde einops transformers diffusers accelerate xformers==0.0.25
+    - git clone -b totoro https://github.com/camenduru/ComfyUI /content/TotoroUI
+    - git clone -b totoro https://github.com/camenduru/ComfyUI_IPAdapter_plus /content/TotoroUI/IPAdapter
+    - aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://civitai.com/api/download/models/128713 -d /content/TotoroUI/models -o dreamshaper_8.safetensors
+    - aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/h94/IP-Adapter/resolve/main/models/image_encoder/model.safetensors -d /content/TotoroUI/models/clip_vision -o CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors
+    - aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/h94/IP-Adapter/resolve/main/models/ip-adapter-plus_sd15.safetensors -d /content/TotoroUI/models/ipadapter -o ip-adapter-plus_sd15.safetensors
+    - aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://github.com/Ttl/ComfyUi_NNLatentUpscale/raw/master/sd15_resizer.pt -d /content/TotoroUI/models -o sd15_resizer.pt
+predict: "/src/predict.py:Predictor"
