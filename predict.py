@@ -95,7 +95,7 @@ class Predictor(BasePredictor):
         width: int = Input(768),
         height: int = Input(512),
         image_denoise: float = Input(1),
-        latent_upscale: bool = False,
+        latent_upscale: bool = Input(default=False, description="Latent Upscale"),
         latent_upscale_size: float = Input(1.5),
         latent_upscale_denoise: float = Input(0.55),
     ) -> List[Path]:
