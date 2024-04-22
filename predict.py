@@ -82,8 +82,14 @@ class Predictor(BasePredictor):
     def predict(
         self,
         green_part: Path = Input(description="Green part"),
+        green_positive_prompt: str = Input(default="anime illustration of a young woman with a black jacket"),
+        green_negative_prompt: str = Input(default=""),
         red_part: Path = Input(description="Red part"),
+        red_positive_prompt: str = Input(default="illustration of a blond woman"),
+        red_negative_prompt: str = Input(default="anime"),
         black_part: Path = Input(description="Black part"),
+        black_positive_prompt: str = Input(default="closeup of two girl friends shopping in a sci-fi space station"),
+        black_negative_prompt: str = Input(default="blurry, lowres, bad art, ill, distorted, malformed, horror"),
         color_mask: Path = Input(description="Color Mask"),
         seed: int = Input(543543),
         steps: int = Input(30),
@@ -108,26 +114,26 @@ class Predictor(BasePredictor):
             color_image, color_mask = nodes.LoadImage().load_image(str(color_mask))
             red, green, blue, cyan, magenta, yellow, black, white = mask_from_colors(image=color_image, threshold_r=0.15, threshold_g=0.15, threshold_b=0.15, remove_isolated_pixels=0, fill_holes=False)
 
-            tokens_1 = self.clip.tokenize("illustration of a blond woman")
+            tokens_1 = self.clip.tokenize(red_positive_prompt)
             cond_1, pooled_1 = self.clip.encode_from_tokens(tokens_1, return_pooled=True)
             cond_1 = [[cond_1, {"pooled_output": pooled_1}]]
-            n_tokens_1 = self.clip.tokenize("anime")
+            n_tokens_1 = self.clip.tokenize(red_negative_prompt)
             n_cond_1, n_pooled_1 = self.clip.encode_from_tokens(n_tokens_1, return_pooled=True)
             n_cond_1 = [[n_cond_1, {"pooled_output": n_pooled_1}]]
             params_1, positive_1, negative_1 = IPAdapterPlus.IPAdapterRegionalConditioning().conditioning(output1_image, image_weight=0.7, prompt_weight=1.0, weight_type='linear', start_at=0.0, end_at=1.0, mask=red, positive=cond_1, negative=n_cond_1)
 
-            tokens_2 = self.clip.tokenize("anime illustration of a young woman with a black jacket")
+            tokens_2 = self.clip.tokenize(green_positive_prompt)
             cond_2, pooled_2 = self.clip.encode_from_tokens(tokens_2, return_pooled=True)
             cond_2 = [[cond_2, {"pooled_output": pooled_2}]]
-            n_tokens_2 = self.clip.tokenize("")
+            n_tokens_2 = self.clip.tokenize(green_negative_prompt)
             n_cond_2, n_pooled_2 = self.clip.encode_from_tokens(n_tokens_2, return_pooled=True)
             n_cond_2 = [[n_cond_2, {"pooled_output": n_pooled_2}]]
             params_2, positive_2, negative_2 = IPAdapterPlus.IPAdapterRegionalConditioning().conditioning(output2_image, image_weight=0.7, prompt_weight=1.0, weight_type='linear', start_at=0.0, end_at=1.0, mask=green, positive=cond_2, negative=n_cond_2)
 
-            tokens_3 = self.clip.tokenize("closeup of two girl friends shopping in a sci-fi space station")
+            tokens_3 = self.clip.tokenize(black_positive_prompt)
             cond_3, pooled_3 = self.clip.encode_from_tokens(tokens_3, return_pooled=True)
             cond_3 = [[cond_3, {"pooled_output": pooled_3}]]
-            n_tokens_3 = self.clip.tokenize("blurry, lowres, bad art, ill, distorted, malformed, horror")
+            n_tokens_3 = self.clip.tokenize(black_negative_prompt)
             n_cond_3, n_pooled_3 = self.clip.encode_from_tokens(n_tokens_3, return_pooled=True)
             n_cond_3 = [[n_cond_3, {"pooled_output": n_pooled_3}]]
             params_3, positive_3, negative_3 = IPAdapterPlus.IPAdapterRegionalConditioning().conditioning(output3_image, image_weight=0.7, prompt_weight=1.0, weight_type='linear', start_at=0.0, end_at=1.0, mask=black, positive=None, negative=None)
