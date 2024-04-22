@@ -81,12 +81,12 @@ class Predictor(BasePredictor):
             self.IPAdapterPlus_model = IPAdapterPlus.IPAdapterUnifiedLoader().load_models(self.model_patcher, 'PLUS (high strength)', lora_strength=0.0, provider="CPU", ipadapter=None)
     def predict(
         self,
-        green_part: Path = Input(description="Green part"),
-        green_positive_prompt: str = Input(default="anime illustration of a young woman with a black jacket"),
-        green_negative_prompt: str = Input(default=""),
         red_part: Path = Input(description="Red part"),
-        red_positive_prompt: str = Input(default="illustration of a blond woman"),
-        red_negative_prompt: str = Input(default="anime"),
+        red_positive_prompt: str = Input(default="anime illustration of a young woman with a black jacket"),
+        red_negative_prompt: str = Input(default=""),
+        green_part: Path = Input(description="Green part"),
+        green_positive_prompt: str = Input(default="illustration of a blond woman"),
+        green_negative_prompt: str = Input(default="anime"),
         black_part: Path = Input(description="Black part"),
         black_positive_prompt: str = Input(default="closeup of two girl friends shopping in a sci-fi space station"),
         black_negative_prompt: str = Input(default="blurry, lowres, bad art, ill, distorted, malformed, horror"),
